@@ -1,12 +1,10 @@
 package adamsmo
 
-import adamsmo.actors.LinkDispatcherActor.{DoneCrawling, StartCrawling}
+import adamsmo.actors.LinkDispatcherActor.StartCrawling
 import adamsmo.common.Logger
-import akka.pattern.ask
 import akka.util.Timeout
 
 import scala.concurrent.Await
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Try}
 
 object App {
@@ -15,7 +13,8 @@ object App {
 
       implicit val timeOut = Timeout.zero
 
-      linkDispatcherActor ! StartCrawling(3, Seq("http://www.google.com"))
+      //todo add filtering out duplicates
+      linkDispatcherActor ! StartCrawling(1, Seq("http://www.google.com", "http://www.google.pl"))
 
       Runtime.getRuntime.addShutdownHook(new Thread() {
         override def run(): Unit = {

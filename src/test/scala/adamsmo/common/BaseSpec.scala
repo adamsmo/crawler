@@ -11,7 +11,7 @@ trait BaseSpec extends FlatSpec with Matchers with ScalaFutures with PatienceCon
 
   val defaultConf = MockConf(
     maxPageSize = 5 * 1000,
-    responseTimeOut = 3.seconds,
+    responseTimeOut = 10.seconds,
     maxNumberOfRetry = 5,
     maxParallelRequests = 10,
     shutdownTimeout = 10.seconds,

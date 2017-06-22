@@ -35,7 +35,7 @@ class LinkExtractorActorSpec extends BaseSpec {
     val waitTimeOut: FiniteDuration = 7.seconds
     val probe = TestProbe()
     val linkExtractor: LinkExtractor = mock[LinkExtractor]
-    val url = "http://127.0.0.1"
+    val url = "fakeFake"
   }
 
 }
