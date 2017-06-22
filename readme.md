@@ -9,7 +9,7 @@ build with:
 
 this will create file `target/scala-2.12/crawler.jar`
 
-to show help message use `--help`
+to show help info use `--help`
 
 ```
 java -jar target/scala-2.12/crawler.jar --help
@@ -27,10 +27,13 @@ Usage: crawler [options]
 ```
 
 
-This implementation follows absolute and relative links that it finds on page.
+This implementation follows absolute and relative links that it finds on a page.
+
 By default it supports pages of size up to 1 megabyte, bigger pages are clipped to 1 megabyte.
-By default it ignores links longer than 200 characters.
-Crawler travers pages depth-first until it reaches set max depth.
+
+By default, it ignores links longer than 200 characters.
+
+Crawler traverse pages depth-first until it reaches set max depth.
 
 After it finishes it prints to console directed graphs for each specified url in form of list of grouped edges, each group contains start and 1-N ends
 Example graph in form of grouped edges:
