@@ -8,18 +8,15 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
 import scala.collection.JavaConverters._
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class LinkExtractor(conf: Configuration)(implicit mat: Materializer) {
+  def extractLinks(httpResponse: Future[HttpResponse]): Future[ExtractedLinks] = httpResponse.flatMap {
+    case HttpResponse(StatusCodes.OK | StatusCodes.Found, _, entity, _) =>
 
-  //todo add timeout on http request
-  def getLinks(httpResponse: Future[HttpResponse]): Future[ExtractedLinks] = httpResponse.flatMap {
-    case HttpResponse(StatusCodes.OK, headers, entity, _) =>
-
-      val pageContent = entity.dataBytes
-
-      pageContent.zip(pageContent.scan(0)((size, chunk) => chunk.length + size).drop(1))
+      entity.dataBytes
+        .scan((ByteString.empty, 0)) { case ((_, size), next) => (next, size + next.length) }
         .takeWhile { case (_, size) => size < conf.maxPageSize }
         .map { case (chunk, _) => chunk }
         .runFold(ByteString.empty)((prev, next) => prev ++ next)
@@ -32,5 +29,7 @@ class LinkExtractor(conf: Configuration)(implicit mat: Materializer) {
 
           ExtractedLinks(absoluteLinks, relativeLinks)
         }
+
+    case HttpResponse(code, _, _, _) => Future.failed(new RuntimeException(s"wrong response code, expected 200 or 302 got $code"))
   }
 }
