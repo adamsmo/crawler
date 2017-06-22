@@ -1,30 +1,31 @@
 package adamsmo
 
 import adamsmo.actors.LinkDispatcherActor.StartCrawling
+import adamsmo.common.CmdParser._
 import adamsmo.common.Logger
-import akka.util.Timeout
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 
 object App {
   def main(args: Array[String]): Unit = {
-    val crawler = new Crawler with Logger {
 
-      implicit val timeOut = Timeout.zero
+    parser.parse(args, Command()) match {
+      case Some(Command(depth, urls)) =>
+        new Crawler with Logger {
+          linkDispatcherActor ! StartCrawling(depth, urls)
 
-      //todo add filtering out duplicates
-      linkDispatcherActor ! StartCrawling(1, Seq("http://www.google.com", "http://www.google.pl"))
+          Runtime.getRuntime.addShutdownHook(new Thread() {
+            override def run(): Unit = {
 
-      Runtime.getRuntime.addShutdownHook(new Thread() {
-        override def run(): Unit = {
-
-          Try(Await.ready(actorSystem.terminate, configuration.shutdownTimeout)) match {
-            case Failure(e) => log.error("Fail to properly shutdown crawler, because of exception:", e)
-            case Success(_) => log.info("Crawler shutdown correctly")
-          }
+              Try(Await.ready(actorSystem.terminate, configuration.shutdownTimeout)) match {
+                case Failure(e) => log.error("Fail to properly shutdown crawler, because of exception:", e)
+                case Success(_) => log.info("Crawler shutdown correctly")
+              }
+            }
+          })
         }
-      })
+      case _ =>
     }
   }
 }
