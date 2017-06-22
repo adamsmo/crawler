@@ -5,6 +5,7 @@ import adamsmo.conf.Configuration
 import adamsmo.http.LinkExtractor
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.ActorMaterializer
+import com.typesafe.config.{Config, ConfigFactory}
 
 import scala.concurrent.duration.{FiniteDuration, _}
 
@@ -24,19 +25,20 @@ trait LinkExtractorBuilder {
 }
 
 trait ConfigurationBuilder {
-  //todo change to text file
+  val config: Config = ConfigFactory.load().getConfig("crawler")
+
   lazy val configuration = new Configuration {
-    override def maxNumberOfRetry: Int = 2
+    val maxNumberOfRetry: Int = config.getInt("max-number-of-retry")
 
-    override def maxPageSize: Int = 100 * 1024
+    val maxPageSize: Int = config.getInt("max-page-size")
 
-    override def maxParallelRequests: Int = 10
+    val maxParallelRequests: Int = config.getInt("max-parallel-requests")
 
-    override def responseTimeOut: FiniteDuration = 10.seconds
+    val responseTimeOut: FiniteDuration = config.getDuration("response-time-out").toMillis.millis
 
-    override def shutdownTimeout: FiniteDuration = 10.seconds
+    val shutdownTimeout: FiniteDuration = config.getDuration("shutdown-timeout").toMillis.millis
 
-    override def maxUrlLength: Int = 200
+    val maxUrlLength: Int = config.getInt("max-url-length")
   }
 }
 
